@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BhajanLyrics — हिंदी भजन, आरती, चालीसा और मंत्र संग्रह</title>
+  <meta name="description" content="BhajanLyrics पर पढ़ें गणेश, शिव, कृष्ण, राम, हनुमान, माता रानी सहित सभी देवी-देवताओं के भजन, आरती, चालीसा, मंत्र और स्तोत्र — पूरी तरह हिंदी में।">
+  <meta name="keywords" content="भजन, हिंदी भजन, आरती, चालीसा, मंत्र, bhajan lyrics, aarti, chalisa">
+  <meta property="og:title" content="BhajanLyrics — हिंदी भजन संग्रह">
+  <meta property="og:description" content="सभी देवी-देवताओं के भजन, आरती, चालीसा और मंत्र — हिंदी में।">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#f4770b">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "BhajanLyrics",
+    "url": "./",
+    "inLanguage": "hi",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "khoj.html?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header class="site-header" id="siteHeader"></header>
+
+  <!-- हीरो -->
+  <section class="hero">
+    <h1>🙏 भक्ति का <span>अमृत संग्रह</span></h1>
+    <p>भजन, आरती, चालीसा, मंत्र और स्तोत्र — सब कुछ एक जगह, पूरी तरह हिंदी में।</p>
+    <form class="hero-search" action="khoj.html" method="get">
+      <input type="search" name="q" placeholder="भजन खोजें... (जैसे: हनुमान चालीसा)" aria-label="भजन खोजें">
+      <button type="submit" aria-label="खोजें">🔍</button>
+    </form>
+    <div class="hero-tags">
+      <a href="shreni.html?c=aarti">आरती</a>
+      <a href="shreni.html?c=chalisa">चालीसा</a>
+      <a href="shreni.html?c=krishna">कृष्ण भजन</a>
+      <a href="shreni.html?c=shiv">शिव भजन</a>
+      <a href="shreni.html?c=mantra">मंत्र</a>
+    </div>
+  </section>
+
+  <main class="container">
+    <!-- श्रेणियाँ -->
+    <section class="section" id="shreniyan">
+      <div class="section-head">
+        <h2>📚 श्रेणियाँ</h2>
+        <a class="see-all" href="khoj.html">सभी भजन →</a>
+      </div>
+      <div class="cat-grid" id="catGrid"></div>
+    </section>
+
+    <!-- विशेष भजन -->
+    <section class="section">
+      <div class="section-head">
+        <h2>⭐ विशेष भजन</h2>
+      </div>
+      <div class="bhajan-grid" id="featuredGrid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    </section>
+
+    <!-- नवीनतम भजन -->
+    <section class="section">
+      <div class="section-head">
+        <h2>🆕 नवीनतम भजन</h2>
+        <a class="see-all" href="khoj.html">और देखें →</a>
+      </div>
+      <div class="bhajan-grid" id="latestGrid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    </section>
+
+    <!-- लोकप्रिय भजन -->
+    <section class="section">
+      <div class="section-head">
+        <h2>🔥 लोकप्रिय भजन</h2>
+      </div>
+      <div class="bhajan-grid" id="popularGrid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="siteFooter"></footer>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      // श्रेणियाँ
+      const all = await DB.getAll();
+      const counts = {};
+      all.forEach(b => counts[b.category] = (counts[b.category] || 0) + 1);
+      $("#catGrid").innerHTML = CATEGORIES.map(c => `
+        <a class="cat-card fade-in" href="shreni.html?c=${c.slug}">
+          <span class="cat-icon">${c.icon}</span>${c.name}
+          <span class="cat-count">${counts[c.slug] || 0} भजन</span>
+        </a>`).join("");
+
+      // विशेष
+      const feat = all.filter(b => b.featured).slice(0, 6);
+      $("#featuredGrid").innerHTML = feat.length
+        ? feat.map(bhajanCard).join("")
+        : `<div class="empty-state"><div class="es-icon">⭐</div>अभी कोई विशेष भजन नहीं। Admin Panel से "विशेष" चुनें।</div>`;
+
+      // नवीनतम
+      $("#latestGrid").innerHTML = all.slice(0, 6).map(bhajanCard).join("");
+
+      // लोकप्रिय (views के अनुसार)
+      const pop = [...all].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 6);
+      $("#popularGrid").innerHTML = pop.map(bhajanCard).join("");
+    });
+  </script>
+</body>
+</html>
