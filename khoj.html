@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>भजन खोजें — BhajanLyrics</title>
+  <meta name="description" content="सभी भजनों में तुरंत खोजें — श्रेणी और अक्षर के अनुसार फ़िल्टर करें। BhajanLyrics हिंदी भजन संग्रह।">
+  <meta name="theme-color" content="#f4770b">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header" id="siteHeader"></header>
+
+  <main class="container">
+    <div class="page-title">
+      <h1>🔍 भजन खोजें</h1>
+      <p>नाम, गायक या पंक्ति लिखें — परिणाम तुरंत दिखेंगे।</p>
+    </div>
+
+    <div class="filter-bar">
+      <input type="search" id="q" placeholder="भजन खोजें... (जैसे: आरती, कृष्ण, चालीसा)" autofocus>
+      <select id="catFilter">
+        <option value="">सभी श्रेणियाँ</option>
+      </select>
+    </div>
+
+    <div class="alpha-bar" id="alphaBar"></div>
+
+    <p style="color:var(--text-soft);margin-bottom:14px" id="resultInfo"></p>
+    <div class="bhajan-grid" id="results"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+
+    <!-- सभी श्रेणियाँ -->
+    <section class="section" id="shreniyan">
+      <div class="section-head"><h2>📚 सभी श्रेणियाँ</h2></div>
+      <div class="cat-grid" id="catGrid"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="siteFooter"></footer>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const ALPHABETS = ["सभी","अ","आ","इ","ई","उ","ऊ","ए","ऐ","ओ","औ","क","ख","ग","घ","च","छ","ज","झ","ट","ठ","ड","ढ","त","थ","द","ध","न","प","फ","ब","भ","म","य","र","ल","व","श","ष","स","ह","ज्ञ","श्र","ॐ"];
+      let all = [], letter = "सभी";
+
+      // श्रेणी विकल्प
+      $("#catFilter").innerHTML += CATEGORIES.map(c => `<option value="${c.slug}">${c.icon} ${c.name}</option>`).join("");
+
+      // अक्षर बार
+      $("#alphaBar").innerHTML = ALPHABETS.map(a =>
+        `<button data-a="${a}" class="${a === "सभी" ? "active" : ""}">${a}</button>`).join("");
+      $("#alphaBar").addEventListener("click", e => {
+        const b = e.target.closest("button"); if (!b) return;
+        letter = b.dataset.a;
+        $$("#alphaBar button").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        render();
+      });
+
+      // URL से q / c पढ़ें
+      const params = new URLSearchParams(location.search);
+      if (params.get("q")) $("#q").value = params.get("q");
+      if (params.get("c")) $("#catFilter").value = params.get("c");
+
+      function render() {
+        const q = $("#q").value.trim().toLowerCase();
+        const cat = $("#catFilter").value;
+        let list = all;
+        if (cat) list = list.filter(b => b.category === cat);
+        if (letter !== "सभी") list = list.filter(b => String(b.title).trim().startsWith(letter));
+        if (q) list = list.filter(b =>
+          (b.title + " " + (b.singer || "") + " " + String(b.lyrics).replace(/<[^>]+>/g, " "))
+            .toLowerCase().includes(q));
+        $("#resultInfo").textContent = list.length + " भजन मिले";
+        $("#results").innerHTML = list.length
+          ? list.map(bhajanCard).join("")
+          : `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">🪔</div>कोई भजन नहीं मिला — कुछ और खोजें।</div>`;
+      }
+
+      $("#q").addEventListener("input", render);
+      $("#catFilter").addEventListener("change", render);
+
+      all = await DB.getAll();
+      render();
+
+      // श्रेणी ग्रिड
+      const counts = {};
+      all.forEach(b => counts[b.category] = (counts[b.category] || 0) + 1);
+      $("#catGrid").innerHTML = CATEGORIES.map(c => `
+        <a class="cat-card" href="shreni.html?c=${c.slug}">
+          <span class="cat-icon">${c.icon}</span>${c.name}
+          <span class="cat-count">${counts[c.slug] || 0} भजन</span>
+        </a>`).join("");
+    });
+  </script>
+</body>
+</html>

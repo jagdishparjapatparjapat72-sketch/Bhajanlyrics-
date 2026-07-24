@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://APNI-WEBSITE-URL-YAHAN.netlify.app/sitemap.xml

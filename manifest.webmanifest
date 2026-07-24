@@ -1,0 +1,15 @@
+{
+  "name": "BhajanLyrics — हिंदी भजन संग्रह",
+  "short_name": "BhajanLyrics",
+  "description": "भजन, आरती, चालीसा, मंत्र और स्तोत्र — हिंदी में।",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "lang": "hi",
+  "background_color": "#fffaf2",
+  "theme_color": "#f4770b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

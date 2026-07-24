@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>श्रेणी — BhajanLyrics</title>
+  <meta name="description" content="श्रेणी के अनुसार भजन पढ़ें — BhajanLyrics हिंदी भजन संग्रह।">
+  <meta name="theme-color" content="#f4770b">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header" id="siteHeader"></header>
+
+  <main class="container">
+    <div class="page-title">
+      <nav class="breadcrumb"><a href="index.html">होम</a> › <span id="bcCat">श्रेणी</span></nav>
+      <h1 id="catTitle">श्रेणी</h1>
+      <p id="catInfo"></p>
+    </div>
+    <div class="bhajan-grid" id="results" style="margin-top:18px">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+
+    <section class="section">
+      <div class="section-head"><h2>📚 अन्य श्रेणियाँ</h2></div>
+      <div class="cat-grid" id="catGrid"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="siteFooter"></footer>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const slug = new URLSearchParams(location.search).get("c") || "";
+      const cat = CATEGORIES.find(c => c.slug === slug);
+      const name = cat ? cat.name : "सभी भजन";
+      document.title = name + " — BhajanLyrics";
+      $("#catTitle").textContent = (cat ? cat.icon + " " : "") + name;
+      $("#bcCat").textContent = name;
+
+      const all = await DB.getAll();
+      const list = cat ? all.filter(b => b.category === slug) : all;
+      $("#catInfo").textContent = list.length + " भजन उपलब्ध";
+      $("#results").innerHTML = list.length
+        ? list.map(bhajanCard).join("")
+        : `<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">🪔</div>इस श्रेणी में अभी कोई भजन नहीं है।<br>Admin Panel से नया भजन जोड़ें।</div>`;
+
+      $("#catGrid").innerHTML = CATEGORIES.filter(c => c.slug !== slug).map(c => `
+        <a class="cat-card" href="shreni.html?c=${c.slug}">
+          <span class="cat-icon">${c.icon}</span>${c.name}
+        </a>`).join("");
+    });
+  </script>
+</body>
+</html>
